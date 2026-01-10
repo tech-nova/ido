@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ido Dictionary Converter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 30px;
+        }
+        
+        .panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .panel h2 {
+            color: #667eea;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .panel h2::before {
+            content: '📝';
+        }
+        
+        .panel:last-child h2::before {
+            content: '✨';
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 400px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .stats {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        
+        .message.show {
+            display: block;
+        }
+        
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .progress {
+            width: 100%;
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .progress.show {
+            display: block;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        @media (max-width: 968px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔄 Ido Dictionary Converter</h1>
+            <p>Convert Markdown format to structured JSON (v2.0)</p>
+        </div>
+        
+        <div class="content">
+            <div class="panel">
+                <h2>Markdown Source</h2>
+                <textarea id="input" placeholder="Paste your dictionary in Markdown format...">-**ivor**- {suf.}  -ivorous *(which eats; e.g. karnivora = carnivorous)*
+**ke** {konj.}  that *(see also: dum ke, pro ke, etc)*
+**ek** {prep.}  out of *(motion from; made or extracted from; fractional part of)*, out from, *(US)* out *(forth from)*, of *(made of)*
+**bodmeri.ar** {tr/ntr}  to pledge *(a ship or its cargo)* as security *(in bottomry)*
+**cementac.ar** {tr} *(tekn.)*  to subject to cementation *(impregnating the surface of a metal with another substance, using heat, as in steel-making and case-hardening)*
+**cel.ar** {tr} [ulu, de ulu]  to hide, conceal, secrete, keep secret
+        **cel.o-trov.o** *(lud.)*  hide-and-seek, *(US)* hide-and-go-seek *(game)*
+**but.ar** {ntr} [kontre, sur]  to stumble *(in walking)*, trip *(catch one's foot)*, strike one's foot; butt *(join end to end or side by side, but not overlapping)*, abut
+**bayonet.o** *(armo)*  bayonet
+        **prizent.ar la bayonet.o**  to bring the bayonet to a charge
+**baz.o**  base *(lowest part)*, foundation, bottom, foot; *(fig.)* basis, foundation, grounds; *(chem.)* base
+**ad.maxim.e**  at (the) most
+**ad.ven.ar** {ntr}  to come (towards)</textarea>
+                <div class="controls">
+                    <button class="btn-primary" onclick="convertToJSON()">🚀 Convert</button>
+                    <button class="btn-secondary" onclick="clearInput()">🗑️ Clear</button>
+                </div>
+                <div class="progress" id="progress">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+            </div>
+            
+            <div class="panel">
+                <h2>JSON Result</h2>
+                <div id="message" class="message"></div>
+                <textarea id="output" readonly placeholder="JSON result will appear here..."></textarea>
+                <div class="controls">
+                    <button class="btn-primary" onclick="copyToClipboard()">📋 Copy</button>
+                    <button class="btn-secondary" onclick="downloadJSON()">💾 Download</button>
+                </div>
+                <div class="stats" id="stats" style="display:none;">
+                    <div class="stat-item">
+                        <div class="stat-value" id="entryCount">0</div>
+                        <div class="stat-label">Entries</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="derivedCount">0</div>
+                        <div class="stat-label">Derived</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="processingTime">0</div>
+                        <div class="stat-label">Time (ms)</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="errorCount">0</div>
+                        <div class="stat-label">Errors</div>
+                    </div>
+                </div>
+                <div class="controls" id="errorControls" style="display:none;">
+                    <button class="btn-secondary" onclick="showErrorLog()">📋 View Errors</button>
+                    <button class="btn-secondary" onclick="downloadErrorLog()">💾 Download Errors</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let errorLog = [];
+
+        const domainMap = {
+            'adv': { en: 'adverb', ido: 'adverbo' },
+            'anat': { en: 'anatomy', ido: 'anatomio' },
+            'antiq': { en: 'in antiquity', ido: 'antique' },
+            'antrop': { en: 'anthropology', ido: 'antropologio' },
+            'arb': { en: 'tree or shrub', ido: 'arboro od arbusto' },
+            'aritm': { en: 'arithmetic', ido: 'aritmetiko' },
+            'arkeol': { en: 'archaeology', ido: 'arkeologio' },
+            'arkit': { en: 'architecture', ido: 'arkitekturo' },
+            'astron': { en: 'astronomy', ido: 'astronomio' },
+            'biokem': { en: 'biochemistry', ido: 'biokemio' },
+            'biol': { en: 'biology', ido: 'biologio' },
+            'bot': { en: 'botany', ido: 'botaniko' },
+            'dinos': { en: 'dinosaur', ido: 'dinosaurio' },
+            'diplom': { en: 'diplomacy', ido: 'diplomaco' },
+            'drnkj': { en: 'drink, beverage', ido: 'drinkajo' },
+            'ekl': { en: 'church (institution)', ido: 'eklezio' },
+            'ekon': { en: 'economy or economics', ido: 'ekonomio od ekonomiko' },
+            'elek': { en: 'electricity', ido: 'elektro' },
+            'elektrn': { en: 'electronics', ido: 'elektroniko' },
+            'elem': { en: 'chemical element', ido: 'elemento kemiala' },
+            'entom': { en: 'entomology', ido: 'entomologio' },
+            'fabl': { en: 'in fable', ido: 'fablala' },
+            'farm': { en: 'pharmacy', ido: 'farmacio' },
+            'filoz': { en: 'philosophy', ido: 'filozofio' },
+            'financ': { en: 'finance', ido: 'financo' },
+            'fiziol': { en: 'physiology', ido: 'fiziologio' },
+            'fizk': { en: 'physics', ido: 'fiziko' },
+            'fortif': { en: 'fortification', ido: 'fortifikala' },
+            'fot': { en: 'photographic', ido: 'fotografala' },
+            'gemol': { en: 'gemmology, gemology', ido: 'gemologio' },
+            'geneal': { en: 'genealogy', ido: 'genealogio' },
+            'geod': { en: 'geodesy', ido: 'geodezio' },
+            'geog': { en: 'geography', ido: 'geografio' },
+            'geol': { en: 'geology', ido: 'geologio' },
+            'geom': { en: 'geometry', ido: 'geometrio' },
+            'gram': { en: 'grammar', ido: 'gramatiko' },
+            'hist': { en: 'history', ido: 'historio' },
+            'imprim': { en: 'printing', ido: 'imprimala' },
+            'instr': { en: 'measuring instrument', ido: 'instrumento mezurala' },
+            'interj': { en: 'interjection', ido: 'interjeciono' },
+            'judic': { en: 'judicial', ido: 'judiciala' },
+            'kem': { en: 'chemistry', ido: 'kemio' },
+            'kir': { en: 'surgery', ido: 'kirurgio' },
+            'konj': { en: 'conjunction', ido: 'konjunciono' },
+            'konst': { en: 'building', ido: 'konstrukturo' },
+            'kristal': { en: 'crystallography', ido: 'kristalografio' },
+            'leg': { en: 'legal', ido: 'legala' },
+            'ling': { en: 'language', ido: 'linguala' },
+            'liter': { en: 'literature', ido: 'literaturo' },
+            'litur': { en: 'liturgy', ido: 'liturgio' },
+            'log': { en: 'logic', ido: 'logiko' },
+            'lud': { en: 'game, play', ido: 'ludala' },
+            'ludl': { en: 'plaything, toy', ido: 'ludilo' },
+            'mamif': { en: 'mammal', ido: 'mamifero' },
+            'mar': { en: 'sea, ocean, bay or strait', ido: 'maro, oceano, bayo o stretajo' },
+            'matem': { en: 'mathematics', ido: 'matematiko' },
+            'medic': { en: 'medicine', ido: 'medicino' },
+            'medkm': { en: 'medicament', ido: 'medikamento' },
+            'mek': { en: 'mechanical', ido: 'mekanikala' },
+            'metalg': { en: 'metallurgy', ido: 'metalurgio' },
+            'meteor': { en: 'meteorology', ido: 'meteorologio' },
+            'mez': { en: 'measurement', ido: 'mezurala' },
+            'milit': { en: 'military', ido: 'militala' },
+            'min': { en: 'mineralogy', ido: 'mineralogio' },
+            'mitol': { en: 'mythology', ido: 'mitologio' },
+            'molsk': { en: 'mollusc', ido: 'molusko' },
+            'mont': { en: 'mountain or mountain range', ido: 'monto o montaro' },
+            'muz': { en: 'music', ido: 'muziko' },
+            'muzin': { en: 'musical instrument', ido: 'muzikala instrumento' },
+            'nav': { en: 'naval, boating', ido: 'navala' },
+            'obs': { en: 'obsolete', ido: 'obsoleta' },
+            'opt': { en: 'optics', ido: 'optiko' },
+            'paleo': { en: 'palaeontology', ido: 'paleontologio' },
+            'patol': { en: 'pathology', ido: 'patologio' },
+            'pek': { en: 'money', ido: 'pekuniala' },
+            'pl': { en: 'plant (botanical)', ido: 'planto' },
+            'poez': { en: 'poetry', ido: 'poezio' },
+            'polit': { en: 'politics', ido: 'politiko' },
+            'prep': { en: 'preposition', ido: 'prepoziciono' },
+            'pron': { en: 'pronoun', ido: 'pronomo' },
+            'proz': { en: 'prosody', ido: 'prozodio' },
+            'psik': { en: 'psychology', ido: 'psikologio' },
+            'rel': { en: 'religion', ido: 'religio' },
+            'rept': { en: 'reptile', ido: 'reptero' },
+            'retor': { en: 'rhetoric', ido: 'retoriko' },
+            'river': { en: 'river', ido: 'rivero o fluvio' },
+            'sociol': { en: 'sociology', ido: 'sociologio' },
+            'subs': { en: 'substance', ido: 'substanco' },
+            'tekn': { en: 'technology', ido: 'teknologio' },
+            'teol': { en: 'theology', ido: 'teologio' },
+            'tipog': { en: 'typography', ido: 'tipografo' },
+            'vestl': { en: 'clothing', ido: 'vestala' },
+            'zool': { en: 'zoology', ido: 'zoologio' }
+        };
+
+        function parseEntry(line, lineNumber) {
+            const entry = {
+                word: null,
+                is_derived: false,
+                indentation: 0,
+                source_line: lineNumber,
+                grammar: {
+                    category: null,
+                    details: {}
+                },
+                annotations: [],
+                domains: [],
+                translations: [],
+                derived: []
+            };
+            
+            const indent = line.search(/\S/);
+            entry.indentation = indent;
+            entry.is_derived = indent > 0;
+            
+            // Extract word
+            const wordMatch = line.match(/\*\*([^\*]+)\*\*/);
+            if (!wordMatch) return null;
+            
+            entry.word = wordMatch[1];
+            
+            // Determine category
+            if (entry.word.startsWith('-') && entry.word.endsWith('-')) {
+                entry.grammar.category = 'affix';
+            } else if (entry.word.startsWith('-')) {
+                entry.grammar.category = 'suffix';
+            } else if (entry.word.endsWith('-')) {
+                entry.grammar.category = 'prefix';
+            } else if (entry.word.endsWith('.ar')) {
+                entry.grammar.category = 'verb';
+            } else if (entry.word.endsWith('.a')) {
+                entry.grammar.category = 'adjective';
+            } else if (entry.word.endsWith('.o')) {
+                entry.grammar.category = 'noun';
+                entry.grammar.details.inflection = 'o';
+            } else if (entry.word.endsWith('.e')) {
+                entry.grammar.category = 'adverb';
+            }
+            
+            // Extract qualifiers {tr}, {ntr}, {konj.}, etc.
+            const qualifierMatch = line.match(/\{([^\}]+)\}/);
+            if (qualifierMatch) {
+                const qual = qualifierMatch[1];
+                if (['tr', 'ntr', 'tr/ntr', 'imp'].includes(qual)) {
+                    entry.grammar.category = 'verb';
+                    entry.grammar.details.transitivity = qual;
+                } else if (qual === 'suf.') {
+                    entry.grammar.category = 'suffix';
+                } else if (qual === 'pref.') {
+                    entry.grammar.category = 'prefix';
+                } else if (qual === 'prep.') {
+                    entry.grammar.category = 'preposition';
+                } else if (qual === 'konj.') {
+                    entry.grammar.category = 'conjunction';
+                } else if (qual === 'interj.') {
+                    entry.grammar.category = 'interjection';
+                } else if (qual === 'adv.') {
+                    entry.grammar.category = 'adverb';
+                }
+            }
+            
+            // Extract annotations [ulu, de ulu]
+            const annotMatch = line.match(/\[([^\]]+)\]/);
+            if (annotMatch) {
+                const content = annotMatch[1];
+                entry.annotations.push({
+                    type: 'governing_preposition',
+                    value: content
+                });
+            }
+            
+            // Extract domains *(tekn.)*
+            const domainRegex = /\*\(([a-z]+\.?)\)\*/g;
+            let domainMatch;
+            while ((domainMatch = domainRegex.exec(line)) !== null) {
+                const abbrev = domainMatch[1].replace('.', '');
+                if (domainMap[abbrev]) {
+                    entry.domains.push({
+                        abbreviation: abbrev,
+                        name: domainMap[abbrev].en,
+                        ido_name: domainMap[abbrev].ido
+                    });
+                } else {
+                    // Unknown domain
+                    entry.domains.push({
+                        abbreviation: abbrev,
+                        name: abbrev,
+                        ido_name: null
+                    });
+                }
+            }
+            
+            // Parse translations
+            let remaining = line.replace(/\*\*[^\*]+\*\*/, '').trim();
+            remaining = remaining.replace(/\{[^\}]+\}/g, '').trim();
+            remaining = remaining.replace(/\[[^\]]+\]/g, '').trim();
+            remaining = remaining.replace(/\*\([a-z]+\.?\)\*/g, '').trim();
+            
+            if (remaining) {
+                entry.translations = parseTranslations(remaining);
+            }
+            
+            return entry;
+        }
+
+        function parseTranslations(text) {
+            const translations = [];
+            
+            // Split by ; or , but be careful with parentheses
+            const parts = smartSplit(text, /[;,]/);
+            
+            for (const part of parts) {
+                const translation = {
+                    text: null,
+                    comments: [],
+                    regional_variants: [],
+                    examples: []
+                };
+                
+                let cleanPart = part.trim();
+                
+                // Extract regional variants *(US)*
+                const regionalRegex = /\*\((US|UK|GB)\)\*/g;
+                let regionalMatch;
+                while ((regionalMatch = regionalRegex.exec(cleanPart)) !== null) {
+                    translation.regional_variants.push(regionalMatch[1]);
+                    cleanPart = cleanPart.replace(regionalMatch[0], '').trim();
+                }
+                
+                // Extract comments *(in walking)*
+                const commentRegex = /\*\(([^\)]+)\)\*/g;
+                let commentMatch;
+                const comments = [];
+                while ((commentMatch = commentRegex.exec(cleanPart)) !== null) {
+                    comments.push(commentMatch[1]);
+                }
+                
+                // Remove all italic parentheses
+                cleanPart = cleanPart.replace(/\*\([^\)]+\)\*/g, '').trim();
+                
+                // Check for examples with e.g.
+                if (cleanPart.includes('e.g.')) {
+                    const examplesPart = cleanPart.split('e.g.')[1];
+                    if (examplesPart) {
+                        const exampleMatches = examplesPart.match(/([a-z\-]+)\s*=\s*([^;,]+)/g);
+                        if (exampleMatches) {
+                            exampleMatches.forEach(ex => {
+                                const [ido, trans] = ex.split('=').map(s => s.trim());
+                                translation.examples.push({
+                                    ido: ido,
+                                    translation: trans
+                                });
+                            });
+                        }
+                    }
+                    cleanPart = cleanPart.split('e.g.')[0].trim();
+                }
+                
+                translation.text = cleanPart;
+                translation.comments = comments;
+                
+                // Only add if there's actual text
+                if (translation.text) {
+                    translations.push(translation);
+                }
+            }
+            
+            return translations;
+        }
+
+        function smartSplit(text, delimiter) {
+            const parts = [];
+            let current = '';
+            let parenDepth = 0;
+            
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+                
+                if (char === '(') parenDepth++;
+                if (char === ')') parenDepth--;
+                
+                if (delimiter.test(char) && parenDepth === 0) {
+                    parts.push(current);
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            
+            if (current) parts.push(current);
+            
+            return parts;
+        }
+
+        async function convertToJSON() {
+            const startTime = performance.now();
+            const input = document.getElementById('input').value;
+            const lines = input.split('\n');
+            
+            errorLog = [];
+            
+            if (lines.length === 0) {
+                showMessage('❌ No data to convert', 'error');
+                return;
+            }
+            
+            showProgress(true);
+            
+            const entries = [];
+            let currentEntry = null;
+            let totalLines = 0;
+            let processedLines = 0;
+            
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                const trimmedLine = line.trim();
+                
+                if (!trimmedLine) continue;
+                
+                totalLines++;
+                const entry = parseEntry(line, i + 1);
+                
+                if (!entry) {
+                    errorLog.push({
+                        line: i + 1,
+                        content: line,
+                        reason: 'Unable to parse line (format not recognized)'
+                    });
+                    continue;
+                }
+                
+                processedLines++;
+                
+                if (entry.indentation === 0) {
+                    if (currentEntry) {
+                        entries.push(currentEntry);
+                    }
+                    currentEntry = entry;
+                } else if (entry.indentation > 0 && currentEntry) {
+                    currentEntry.derived.push(entry);
+                } else if (entry.indentation > 0 && !currentEntry) {
+                    errorLog.push({
+                        line: i + 1,
+                        content: line,
+                        reason: 'Derived entry without parent'
+                    });
+                }
+                
+                if (i % 100 === 0) {
+                    const progress = (i / lines.length) * 100;
+                    updateProgress(progress);
+                    await new Promise(resolve => setTimeout(resolve, 0));
+                }
+            }
+            
+            if (currentEntry) {
+                entries.push(currentEntry);
+            }
+            
+            const endTime = performance.now();
+            const processingTime = Math.round(endTime - startTime);
+            
+            const result = {
+                metadata: {
+                    source_language: "Ido",
+                    target_language: "English",
+                    version: "2.0",
+                    conversion_date: new Date().toISOString(),
+                    statistics: {
+                        total_entries: entries.length,
+                        total_derived: entries.reduce((sum, e) => sum + e.derived.length, 0),
+                        total_lines: totalLines,
+                        processed_lines: processedLines,
+                        error_lines: errorLog.length,
+                        processing_time_ms: processingTime
+                    }
+                },
+                entries: entries
+            };
+            
+            const output = document.getElementById('output');
+            output.value = JSON.stringify(result, null, 2);
+            
+            updateStats(entries, processingTime);
+            showProgress(false);
+            
+            if (errorLog.length > 0) {
+                showMessage(`⚠️ ${entries.length} entries converted with ${errorLog.length} errors in ${processingTime}ms`, 'error');
+            } else {
+                showMessage(`✅ ${entries.length} entries converted in ${processingTime}ms!`, 'success');
+            }
+        }
+
+        function showProgress(show) {
+            const progress = document.getElementById('progress');
+            if (show) {
+                progress.classList.add('show');
+                updateProgress(0);
+            } else {
+                progress.classList.remove('show');
+            }
+        }
+
+        function updateProgress(percent) {
+            const bar = document.getElementById('progressBar');
+            bar.style.width = percent + '%';
+        }
+
+        function updateStats(entries, time) {
+            let derivedCount = 0;
+            entries.forEach(entry => {
+                derivedCount += entry.derived.length;
+            });
+            
+            const errorCount = errorLog.length;
+            
+            document.getElementById('entryCount').textContent = entries.length;
+            document.getElementById('derivedCount').textContent = derivedCount;
+            document.getElementById('processingTime').textContent = time;
+            document.getElementById('errorCount').textContent = errorCount;
+            document.getElementById('stats').style.display = 'grid';
+            
+            if (errorCount > 0) {
+                document.getElementById('errorControls').style.display = 'flex';
+            } else {
+                document.getElementById('errorControls').style.display = 'none';
+            }
+        }
+
+        function showMessage(text, type) {
+            const message = document.getElementById('message');
+            message.textContent = text;
+            message.className = `message ${type} show`;
+            setTimeout(() => {
+                message.classList.remove('show');
+            }, 3000);
+        }
+
+        function showErrorLog() {
+            if (errorLog.length === 0) {
+                showMessage('✅ No errors to display', 'success');
+                return;
+            }
+            
+            let logText = `=== ERROR LOG ===\n`;
+            logText += `Total: ${errorLog.length} unparsed lines\n\n`;
+            
+            errorLog.forEach((err, idx) => {
+                logText += `[${idx + 1}] Line ${err.line}:\n`;
+                logText += `   Content: ${err.content}\n`;
+                logText += `   Reason: ${err.reason}\n\n`;
+            });
+            
+            const output = document.getElementById('output');
+            output.value = logText;
+            showMessage('📋 Error log displayed', 'success');
+        }
+
+        function downloadErrorLog() {
+            if (errorLog.length === 0) {
+                showMessage('✅ No errors to download', 'success');
+                return;
+            }
+            
+            let logText = `ERROR LOG - Ido Dictionary Conversion\n`;
+            logText += `Date: ${new Date().toISOString()}\n`;
+            logText += `Total errors: ${errorLog.length}\n`;
+            logText += `${'='.repeat(80)}\n\n`;
+            
+            errorLog.forEach((err, idx) => {
+                logText += `ERROR #${idx + 1}\n`;
+                logText += `  Line: ${err.line}\n`;
+                logText += `  Content: ${err.content}\n`;
+                logText += `  Reason: ${err.reason}\n`;
+                logText += `${'-'.repeat(80)}\n\n`;
+            });
+            
+            const blob = new Blob([logText], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `error_log_${Date.now()}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showMessage('💾 Error log downloaded!', 'success');
+        }
+
+        function copyToClipboard() {
+            const output = document.getElementById('output');
+            if (!output.value) {
+                showMessage('❌ Nothing to copy. Convert first!', 'error');
+                return;
+            }
+            output.select();
+            document.execCommand('copy');
+            showMessage('📋 Copied to clipboard!', 'success');
+        }
+
+        function downloadJSON() {
+            const output = document.getElementById('output').value;
+            if (!output) {
+                showMessage('❌ Nothing to download. Convert first!', 'error');
+                return;
+            }
+            
+            const blob = new Blob([output], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ido_dictionary_${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showMessage('💾 File downloaded!', 'success');
+        }
+
+        function clearInput() {
+            document.getElementById('input').value = '';
+            document.getElementById('output').value = '';
+            document.getElementById('stats').style.display = 'none';
+            document.getElementById('errorControls').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
